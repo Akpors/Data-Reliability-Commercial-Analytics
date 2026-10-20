@@ -1,0 +1,17 @@
+version: 2
+
+exposures:
+  - name: control_tower
+    label: Data Reliability Control Tower
+    type: dashboard
+    maturity: medium
+    description: Streamlit dashboard reading the marts and monitoring schemas.
+    url: http://localhost:8501
+    owner:
+      name: Data Platform
+      email: data-platform@example.com
+    depends_on:
+      - ref('fct_sales')
+      - ref('fct_payments')
+      - ref('dim_customer')
+      - ref('dim_product')

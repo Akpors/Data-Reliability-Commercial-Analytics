@@ -1,0 +1,12 @@
+psycopg[binary]==3.3.6
+pandas==3.0.6
+pyarrow==26.0.0
+pyyaml==6.0.3
+faker==40.43.0
+httpx==0.28.1
+structlog==26.1.0
+streamlit==1.66.0
+plotly==7.1.0
+pytest==9.1.1
+pytest-asyncio==1.4.0
+ruff==0.17.1

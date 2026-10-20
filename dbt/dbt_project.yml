@@ -1,0 +1,25 @@
+name: drct
+version: "1.0.0"
+config-version: 2
+profile: drct
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+analysis-paths: []
+seed-paths: []
+snapshot-paths: []
+
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  drct:
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: intermediate
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table

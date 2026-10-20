@@ -1,0 +1,101 @@
+{
+  "metadata": {
+    "dbt_schema_version": "https://schemas.getdbt.com/dbt/sources/v3.json",
+    "dbt_version": "1.12.6",
+    "generated_at": "2026-10-20T00:38:55.217065Z",
+    "invocation_id": "30034522-19c6-4e53-a6d8-0e73cb232993"
+  },
+  "results": [
+    {
+      "unique_id": "source.drct.raw.fx_rates",
+      "max_loaded_at": "2026-07-23T06:00:00+00:00",
+      "snapshotted_at": "2026-07-23T06:00:00+00:00",
+      "max_loaded_at_time_ago_in_s": 0.0,
+      "status": "pass",
+      "criteria": {
+        "warn_after": {
+          "count": 20,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 44,
+          "period": "hour"
+        },
+        "filter": null
+      }
+    },
+    {
+      "unique_id": "source.drct.raw.payments",
+      "max_loaded_at": "2026-07-23T06:00:00+00:00",
+      "snapshotted_at": "2026-07-23T06:00:00+00:00",
+      "max_loaded_at_time_ago_in_s": 0.0,
+      "status": "pass",
+      "criteria": {
+        "warn_after": {
+          "count": 20,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 44,
+          "period": "hour"
+        },
+        "filter": null
+      }
+    },
+    {
+      "unique_id": "source.drct.raw.products",
+      "max_loaded_at": "2026-07-23T06:00:00+00:00",
+      "snapshotted_at": "2026-07-23T06:00:00+00:00",
+      "max_loaded_at_time_ago_in_s": 0.0,
+      "status": "pass",
+      "criteria": {
+        "warn_after": {
+          "count": 20,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 44,
+          "period": "hour"
+        },
+        "filter": null
+      }
+    },
+    {
+      "unique_id": "source.drct.raw.customers",
+      "max_loaded_at": "2026-07-23T06:00:00+00:00",
+      "snapshotted_at": "2026-07-23T06:00:00+00:00",
+      "max_loaded_at_time_ago_in_s": 0.0,
+      "status": "pass",
+      "criteria": {
+        "warn_after": {
+          "count": 20,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 44,
+          "period": "hour"
+        },
+        "filter": null
+      }
+    },
+    {
+      "unique_id": "source.drct.raw.sales",
+      "max_loaded_at": "2026-07-23T06:00:00+00:00",
+      "snapshotted_at": "2026-07-23T06:00:00+00:00",
+      "max_loaded_at_time_ago_in_s": 0.0,
+      "status": "pass",
+      "criteria": {
+        "warn_after": {
+          "count": 20,
+          "period": "hour"
+        },
+        "error_after": {
+          "count": 44,
+          "period": "hour"
+        },
+        "filter": null
+      }
+    }
+  ],
+  "elapsed_time": 0.06147289276123047
+}

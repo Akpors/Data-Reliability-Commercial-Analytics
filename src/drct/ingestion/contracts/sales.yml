@@ -1,0 +1,15 @@
+source: sales
+version: 1
+file_format: csv
+columns:
+  - {name: order_id, dtype: string, nullable: false}
+  - {name: order_line_id, dtype: string, nullable: false}
+  - {name: order_date, dtype: date}
+  - {name: order_ts, dtype: timestamp}
+  - {name: customer_id, dtype: string, nullable: false}
+  - {name: product_id, dtype: string, nullable: false}
+  - {name: quantity, dtype: int}
+  - {name: unit_price, dtype: decimal, nullable: false}
+  - {name: currency, dtype: string, nullable: false}
+  - {name: line_type, dtype: string, nullable: false}
+  - {name: channel, dtype: string}

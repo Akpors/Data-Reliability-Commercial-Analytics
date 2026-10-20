@@ -1,0 +1,10 @@
+source: products
+version: 1
+file_format: json
+columns:
+  - {name: product_id, dtype: string, nullable: false}
+  - {name: sku, dtype: string}
+  - {name: product_name, dtype: string}
+  - {name: category, dtype: string}
+  - {name: list_price_gbp, dtype: decimal}
+  - {name: is_active, dtype: bool}

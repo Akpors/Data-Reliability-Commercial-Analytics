@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: int_sales_deduped
+    description: One row per order_line_id (latest _loaded_at wins). duplicate_count is the number of extra raw copies dropped for that line.
+  - name: int_payments_deduped
+    description: One row per payment_id (latest _loaded_at wins). duplicate_count is the number of extra raw copies dropped for that payment.
+  - name: int_orders_enriched
+    description: Deduplicated sales lines with an as-of FX rate and revenue_gbp.
+  - name: int_payments_matched
+    description: Deduplicated payments left-joined to orders; matched is false for payments whose order has no sales lines.

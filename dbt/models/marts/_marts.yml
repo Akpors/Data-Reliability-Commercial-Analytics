@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: fct_sales
+    description: Sales fact, grain order_line_id.
+    columns:
+      - name: order_line_id
+        data_tests:
+          - unique:
+              config: {severity: error}
+          - not_null:
+              config: {severity: error}
+      - name: revenue_gbp
+        description: line_amount converted to GBP using the latest FX rate on or before order_date (weekends use Friday's rate).
+        data_tests:
+          - not_null:
+              config: {severity: error}
+
+  - name: fct_payments
+    description: Payment fact, grain payment_id.
+    columns:
+      - name: payment_id
+        data_tests:
+          - unique:
+              config: {severity: error}
+          - not_null:
+              config: {severity: error}
+
+  - name: dim_customer
+    description: Customer dimension from the latest snapshot.
+    columns:
+      - name: customer_id
+        data_tests:
+          - unique:
+              config: {severity: error}
+
+  - name: dim_product
+    description: Product dimension from the latest snapshot.
+    columns:
+      - name: product_id
+        data_tests:
+          - unique:
+              config: {severity: error}
+
+  - name: dim_date
+    description: Date spine from control.sim_clock.day0 to the current sim date.
+    columns:
+      - name: date_day
+        data_tests:
+          - unique:
+              config: {severity: error}

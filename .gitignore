@@ -1,0 +1,13 @@
+.superpowers/
+.DS_Store
+.env
+landing/
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+dbt/.user.yml
+dbt/target_freshness/

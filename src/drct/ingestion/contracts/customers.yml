@@ -1,0 +1,10 @@
+source: customers
+version: 1
+file_format: json
+columns:
+  - {name: customer_id, dtype: string, nullable: false}
+  - {name: email, dtype: string}
+  - {name: full_name, dtype: string}
+  - {name: country, dtype: string}
+  - {name: signup_date, dtype: date}
+  - {name: segment, dtype: string}

@@ -1,0 +1,9 @@
+# Installed on top of the Airflow image with Airflow's constraints file, which pins
+# psycopg, PyYAML, httpx and structlog; versions are therefore left to the constraints.
+psycopg[binary]
+pyyaml
+httpx
+structlog
+# Not in Airflow's constraints: pinned to match requirements/app.txt.
+pytest==9.1.1
+pytest-asyncio==1.4.0

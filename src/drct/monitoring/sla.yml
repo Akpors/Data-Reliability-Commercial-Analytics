@@ -1,0 +1,20 @@
+# SLA rules evaluated by drct.monitoring.sla.
+# lag: marts max business_date (max(business_date) of marts.fct_sales) must be within
+#      max_lag_days of the sim date, after a real-time grace period following each clock advance.
+# duration: the latest DAG-level run of dag_id must finish within max_duration_s (and succeed).
+- name: marts_daily_refresh
+  kind: lag
+  max_lag_days: 1
+  grace_real_minutes: 10
+- name: fx_ingest_duration
+  kind: duration
+  dag_id: ingest_fx
+  max_duration_s: 30
+- name: sales_ingest_duration
+  kind: duration
+  dag_id: ingest_sales
+  max_duration_s: 600
+- name: transform_duration
+  kind: duration
+  dag_id: dbt_transform
+  max_duration_s: 900

@@ -1,0 +1,386 @@
+{
+  "metadata": {
+    "dbt_schema_version": "https://schemas.getdbt.com/dbt/run-results/v6.json",
+    "dbt_version": "1.12.6",
+    "generated_at": "2026-10-20T00:38:51.884655Z",
+    "invocation_id": "9823d548-6327-4eba-b1c7-ac99ee7dd959",
+    "env": {}
+  },
+  "results": [
+    {
+      "unique_id": "model.drct.stg_payments",
+      "status": "success",
+      "failures": null,
+      "message": "CREATE VIEW",
+      "execution_time": 0.06138420104980469,
+      "compiled_code": "select\n    payment_id,\n    order_id,\n    nullif(payment_ts, '')::timestamptz as payment_ts,\n    nullif(amount, '')::numeric(12, 2) as amount,\n    currency,\n    method,\n    status,\n    business_date,\n    _loaded_at,\n    _sim_loaded_at,\n    _source_file,\n    _batch_id\nfrom \"warehouse\".\"raw\".\"payments\"",
+      "adapter_response": {
+        "_message": "CREATE VIEW"
+      }
+    },
+    {
+      "unique_id": "model.drct.stg_fx_rates",
+      "status": "success",
+      "failures": null,
+      "message": "CREATE VIEW",
+      "execution_time": 0.08223891258239746,
+      "compiled_code": "-- Rates are quoted per 1 unit of base (GBP). ECB publishes business days only, so weekends have no rows.\nselect\n    rate_date,\n    base,\n    quote,\n    rate,\n    _loaded_at,\n    _sim_loaded_at,\n    _batch_id\nfrom \"warehouse\".\"raw\".\"fx_rates\"",
+      "adapter_response": {
+        "_message": "CREATE VIEW"
+      }
+    },
+    {
+      "unique_id": "model.drct.stg_customers",
+      "status": "success",
+      "failures": null,
+      "message": "CREATE VIEW",
+      "execution_time": 0.08736252784729004,
+      "compiled_code": "-- Daily files are full snapshots: keep only the latest one.\nselect\n    customer_id,\n    email,\n    full_name,\n    country,\n    nullif(signup_date, '')::date as signup_date,\n    segment,\n    business_date,\n    _loaded_at,\n    _sim_loaded_at,\n    _source_file,\n    _batch_id\nfrom \"warehouse\".\"raw\".\"customers\"\nwhere business_date = (select max(business_date) from \"warehouse\".\"raw\".\"customers\")",
+      "adapter_response": {
+        "_message": "CREATE VIEW"
+      }
+    },
+    {
+      "unique_id": "model.drct.dim_date",
+      "status": "success",
+      "failures": null,
+      "message": "SELECT 92",
+      "execution_time": 0.08664703369140625,
+      "compiled_code": "-- Spine from day0 to the current sim date. The bounds are read from the sim clock at run time, so a\n-- generate_series is used rather than dbt_utils.date_spine (which needs compile-time literals).\nselect\n    d::date as date_day,\n    extract(year from d)::int as year,\n    extract(month from d)::int as month,\n    extract(day from d)::int as day_of_month,\n    extract(isodow from d)::int as iso_day_of_week,\n    to_char(d, 'Dy') as day_name,\n    extract(isodow from d) in (6, 7) as is_weekend\nfrom generate_series(\n    (select day0 from control.sim_clock where id = 1),\n    (control.sim_now() at time zone 'UTC')::date,\n    interval '1 day'\n) as d",
+      "adapter_response": {
+        "_message": "SELECT 92"
+      }
+    },
+    {
+      "unique_id": "model.drct.stg_products",
+      "status": "success",
+      "failures": null,
+      "message": "CREATE VIEW",
+      "execution_time": 0.04600787162780762,
+      "compiled_code": "-- Daily files are full snapshots: keep only the latest one.\nselect\n    product_id,\n    sku,\n    product_name,\n    category,\n    nullif(list_price_gbp, '')::numeric(12, 2) as list_price_gbp,\n    (lower(nullif(is_active, '')))::boolean as is_active,\n    business_date,\n    _loaded_at,\n    _sim_loaded_at,\n    _source_file,\n    _batch_id\nfrom \"warehouse\".\"raw\".\"products\"\nwhere business_date = (select max(business_date) from \"warehouse\".\"raw\".\"products\")",
+      "adapter_response": {
+        "_message": "CREATE VIEW"
+      }
+    },
+    {
+      "unique_id": "test.drct.not_null_stg_payments_payment_id.c19cc50075",
+      "status": "pass",
+      "failures": 0,
+      "message": null,
+      "execution_time": 0.032343149185180664,
+      "compiled_code": "\n    \n    \n\n\n\nselect payment_id\nfrom \"warehouse\".\"staging\".\"stg_payments\"\nwhere payment_id is null\n\n\n",
+      "adapter_response": {
+        "_message": "SELECT 1"
+      }
+    },
+    {
+      "unique_id": "test.drct.not_null_stg_payments_order_id.601cf57649",
+      "status": "pass",
+      "failures": 0,
+      "message": null,
+      "execution_time": 0.03989005088806152,
+      "compiled_code": "\n    \n    \n\n\n\nselect order_id\nfrom \"warehouse\".\"staging\".\"stg_payments\"\nwhere order_id is null\n\n\n",
+      "adapter_response": {
+        "_message": "SELECT 1"
+      }
+    },
+    {
+      "unique_id": "model.drct.stg_sales",
+      "status": "success",
+      "failures": null,
+      "message": "CREATE VIEW",
+      "execution_time": 0.046588897705078125,
+      "compiled_code": "-- As arrived, typed. No trimming, cleaning or deduplication. Blank strings become NULL so that a bad\n-- value surfaces as a failing not_null test instead of a cast error.\nselect\n    order_id,\n    order_line_id,\n    nullif(order_date, '')::date as order_date,\n    nullif(order_ts, '')::timestamptz as order_ts,\n    customer_id,\n    product_id,\n    nullif(quantity, '')::int as quantity,\n    nullif(unit_price, '')::numeric(12, 2) as unit_price,\n    (nullif(quantity, '')::int * nullif(unit_price, '')::numeric(12, 2))::numeric(12, 2) as line_amount,\n    currency,\n    line_type,\n    channel,\n    business_date,\n    _loaded_at,\n    _sim_loaded_at,\n    _source_file,\n    _batch_id\nfrom \"warehouse\".\"raw\".\"sales\"",
+      "adapter_response": {
+        "_message": "CREATE VIEW"
+      }
+    },
+    {
+      "unique_id": "test.drct.unique_dim_date_date_day.d56fd19199",
+      "status": "pass",
+      "failures": 0,
+      "message": null,
+      "execution_time": 0.013429880142211914,
+      "compiled_code": "\n    \n    \n\nselect\n    date_day as unique_field,\n    count(*) as n_records\n\nfrom \"warehouse\".\"marts\".\"dim_date\"\nwhere date_day is not null\ngroup by date_day\nhaving count(*) > 1\n\n\n",
+      "adapter_response": {
+        "_message": "SELECT 1"
+      }
+    },
+    {
+      "unique_id": "test.drct.unique_stg_payments_payment_id.3744510712",
+      "status": "fail",
+      "failures": 3,
+      "message": "Got 3 results, configured to fail if != 0",
+      "execution_time": 0.026064395904541016,
+      "compiled_code": "\n    \n    \n\nselect\n    payment_id as unique_field,\n    count(*) as n_records\n\nfrom \"warehouse\".\"staging\".\"stg_payments\"\nwhere payment_id is not null\ngroup by payment_id\nhaving count(*) > 1\n\n\n",
+      "adapter_response": {
+        "_message": "SELECT 1"
+      }
+    },
+    {
+      "unique_id": "model.drct.dim_customer",
+      "status": "success",
+      "failures": null,
+      "message": "SELECT 1526",
+      "execution_time": 0.043511152267456055,
+      "compiled_code": "select\n    customer_id,\n    email,\n    full_name,\n    country,\n    signup_date,\n    segment\nfrom \"warehouse\".\"staging\".\"stg_customers\"",
+      "adapter_response": {
+        "_message": "SELECT 1526"
+      }
+    },
+    {
+      "unique_id": "model.drct.dim_product",
+      "status": "success",
+      "failures": null,
+      "message": "SELECT 150",
+      "execution_time": 0.04224801063537598,
+      "compiled_code": "select\n    product_id,\n    sku,\n    product_name,\n    category,\n    list_price_gbp,\n    is_active\nfrom \"warehouse\".\"staging\".\"stg_products\"",
+      "adapter_response": {
+        "_message": "SELECT 150"
+      }
+    },
+    {
+      "unique_id": "test.drct.not_null_stg_sales_customer_id.af88ce3793",
+      "status": "pass",
+      "failures": 0,
+      "message": null,
+      "execution_time": 0.02240729331970215,
+      "compiled_code": "\n    \n    \n\n\n\nselect customer_id\nfrom \"warehouse\".\"staging\".\"stg_sales\"\nwhere customer_id is null\n\n\n",
+      "adapter_response": {
+        "_message": "SELECT 1"
+      }
+    },
+    {
+      "unique_id": "test.drct.assert_no_missing_sales_dates",
+      "status": "pass",
+      "failures": 0,
+      "message": null,
+      "execution_time": 0.04280233383178711,
+      "compiled_code": "\n\n-- Dates in dim_date, up to the latest sales business date, that have no stg_sales rows at all.\nselect d.date_day\nfrom \"warehouse\".\"marts\".\"dim_date\" as d\nwhere d.date_day <= (select max(business_date) from \"warehouse\".\"staging\".\"stg_sales\")\n  and not exists (\n      select 1\n      from \"warehouse\".\"staging\".\"stg_sales\" as s\n      where s.business_date = d.date_day\n  )",
+      "adapter_response": {
+        "_message": "SELECT 1"
+      }
+    },
+    {
+      "unique_id": "test.drct.dbt_expectations_expect_column_values_to_be_between_stg_sales_line_amount__0__line_type_sale_.fa043ee6e9",
+      "status": "warn",
+      "failures": 1,
+      "message": "Got 1 result, configured to warn if != 0",
+      "execution_time": 0.053449392318725586,
+      "compiled_code": "\n\n\n\n\n\n\n    with grouped_expression as (\n    select\n        \n        \n    \n  \n( 1=1 and line_amount >= 0\n)\n as expression\n\n\n    from \"warehouse\".\"staging\".\"stg_sales\"\n    where\n        line_type = 'sale'\n    \n    \n\n),\nvalidation_errors as (\n\n    select\n        *\n    from\n        grouped_expression\n    where\n        not(expression = true)\n\n)\n\nselect *\nfrom validation_errors\n\n\n\n\n\n\n\n",
+      "adapter_response": {
+        "_message": "SELECT 1"
+      }
+    },
+    {
+      "unique_id": "test.drct.not_null_stg_sales_order_date.c25c86fb8d",
+      "status": "pass",
+      "failures": 0,
+      "message": null,
+      "execution_time": 0.03271842002868652,
+      "compiled_code": "\n    \n    \n\n\n\nselect order_date\nfrom \"warehouse\".\"staging\".\"stg_sales\"\nwhere order_date is null\n\n\n",
+      "adapter_response": {
+        "_message": "SELECT 1"
+      }
+    },
+    {
+      "unique_id": "test.drct.not_null_stg_sales_product_id.f0a6c99276",
+      "status": "pass",
+      "failures": 0,
+      "message": null,
+      "execution_time": 0.03395843505859375,
+      "compiled_code": "\n    \n    \n\n\n\nselect product_id\nfrom \"warehouse\".\"staging\".\"stg_sales\"\nwhere product_id is null\n\n\n",
+      "adapter_response": {
+        "_message": "SELECT 1"
+      }
+    },
+    {
+      "unique_id": "model.drct.int_payments_deduped",
+      "status": "skipped",
+      "failures": null,
+      "message": null,
+      "execution_time": 0,
+      "compiled_code": null,
+      "adapter_response": {
+        "_message": null
+      }
+    },
+    {
+      "unique_id": "test.drct.relationships_stg_sales_customer_id__customer_id__ref_stg_customers_.f88f1dcfca",
+      "status": "pass",
+      "failures": 0,
+      "message": null,
+      "execution_time": 0.04531431198120117,
+      "compiled_code": "\n    \n    \n\nwith child as (\n    select customer_id as from_field\n    from \"warehouse\".\"staging\".\"stg_sales\"\n    where customer_id is not null\n),\n\nparent as (\n    select customer_id as to_field\n    from \"warehouse\".\"staging\".\"stg_customers\"\n)\n\nselect\n    from_field\n\nfrom child\nleft join parent\n    on child.from_field = parent.to_field\n\nwhere parent.to_field is null\n\n\n",
+      "adapter_response": {
+        "_message": "SELECT 1"
+      }
+    },
+    {
+      "unique_id": "test.drct.relationships_stg_sales_product_id__product_id__ref_stg_products_.57e6472e6d",
+      "status": "pass",
+      "failures": 0,
+      "message": null,
+      "execution_time": 0.03770589828491211,
+      "compiled_code": "\n    \n    \n\nwith child as (\n    select product_id as from_field\n    from \"warehouse\".\"staging\".\"stg_sales\"\n    where product_id is not null\n),\n\nparent as (\n    select product_id as to_field\n    from \"warehouse\".\"staging\".\"stg_products\"\n)\n\nselect\n    from_field\n\nfrom child\nleft join parent\n    on child.from_field = parent.to_field\n\nwhere parent.to_field is null\n\n\n",
+      "adapter_response": {
+        "_message": "SELECT 1"
+      }
+    },
+    {
+      "unique_id": "test.drct.unique_stg_sales_order_line_id.36c3f2c4cb",
+      "status": "pass",
+      "failures": 0,
+      "message": null,
+      "execution_time": 0.03776049613952637,
+      "compiled_code": "\n    \n    \n\nselect\n    order_line_id as unique_field,\n    count(*) as n_records\n\nfrom \"warehouse\".\"staging\".\"stg_sales\"\nwhere order_line_id is not null\ngroup by order_line_id\nhaving count(*) > 1\n\n\n",
+      "adapter_response": {
+        "_message": "SELECT 1"
+      }
+    },
+    {
+      "unique_id": "test.drct.unique_dim_customer_customer_id.b42affccd1",
+      "status": "pass",
+      "failures": 0,
+      "message": null,
+      "execution_time": 0.032927513122558594,
+      "compiled_code": "\n    \n    \n\nselect\n    customer_id as unique_field,\n    count(*) as n_records\n\nfrom \"warehouse\".\"marts\".\"dim_customer\"\nwhere customer_id is not null\ngroup by customer_id\nhaving count(*) > 1\n\n\n",
+      "adapter_response": {
+        "_message": "SELECT 1"
+      }
+    },
+    {
+      "unique_id": "test.drct.unique_dim_product_product_id.46495bf7fe",
+      "status": "pass",
+      "failures": 0,
+      "message": null,
+      "execution_time": 0.019565105438232422,
+      "compiled_code": "\n    \n    \n\nselect\n    product_id as unique_field,\n    count(*) as n_records\n\nfrom \"warehouse\".\"marts\".\"dim_product\"\nwhere product_id is not null\ngroup by product_id\nhaving count(*) > 1\n\n\n",
+      "adapter_response": {
+        "_message": "SELECT 1"
+      }
+    },
+    {
+      "unique_id": "model.drct.int_sales_deduped",
+      "status": "success",
+      "failures": null,
+      "message": "CREATE VIEW",
+      "execution_time": 0.02874755859375,
+      "compiled_code": "-- One row per order_line_id; the latest _loaded_at wins. duplicate_count = extra raw copies of this line\n-- (sum it by business_date for the per-day duplicate volume).\nwith ranked as (\n    select\n        *,\n        row_number() over (partition by order_line_id order by _loaded_at desc) as rn,\n        count(*) over (partition by order_line_id) - 1 as duplicate_count\n    from \"warehouse\".\"staging\".\"stg_sales\"\n)\n\nselect\n    order_id,\n    order_line_id,\n    order_date,\n    order_ts,\n    customer_id,\n    product_id,\n    quantity,\n    unit_price,\n    line_amount,\n    currency,\n    line_type,\n    channel,\n    business_date,\n    _loaded_at,\n    duplicate_count\nfrom ranked\nwhere rn = 1",
+      "adapter_response": {
+        "_message": "CREATE VIEW"
+      }
+    },
+    {
+      "unique_id": "model.drct.int_payments_matched",
+      "status": "skipped",
+      "failures": null,
+      "message": null,
+      "execution_time": 0,
+      "compiled_code": null,
+      "adapter_response": {
+        "_message": null
+      }
+    },
+    {
+      "unique_id": "model.drct.fct_payments",
+      "status": "skipped",
+      "failures": null,
+      "message": null,
+      "execution_time": 0,
+      "compiled_code": null,
+      "adapter_response": {
+        "_message": null
+      }
+    },
+    {
+      "unique_id": "test.drct.not_null_fct_payments_payment_id.f8fe414166",
+      "status": "skipped",
+      "failures": null,
+      "message": null,
+      "execution_time": 0,
+      "compiled_code": null,
+      "adapter_response": {
+        "_message": null
+      }
+    },
+    {
+      "unique_id": "test.drct.unique_fct_payments_payment_id.4572b82d46",
+      "status": "skipped",
+      "failures": null,
+      "message": null,
+      "execution_time": 0,
+      "compiled_code": null,
+      "adapter_response": {
+        "_message": null
+      }
+    },
+    {
+      "unique_id": "model.drct.int_orders_enriched",
+      "status": "success",
+      "failures": null,
+      "message": "CREATE VIEW",
+      "execution_time": 0.021422147750854492,
+      "compiled_code": "-- As-of FX join: each line takes the latest rate on or before its order_date (weekends and holidays fall back\n-- to the previous business day). GBP needs no rate. revenue_gbp stays NULL when no rate exists, which the\n-- not_null test on fct_sales catches.\nselect\n    s.order_id,\n    s.order_line_id,\n    s.order_date,\n    s.order_ts,\n    s.customer_id,\n    s.product_id,\n    s.quantity,\n    s.unit_price,\n    s.line_amount,\n    s.currency,\n    s.line_type,\n    s.channel,\n    s.business_date,\n    s.duplicate_count,\n    case when s.currency = 'GBP' then 1::numeric else fx.rate end as fx_rate,\n    case\n        when s.currency = 'GBP' then s.line_amount\n        else round(s.line_amount / fx.rate, 2)\n    end as revenue_gbp\nfrom \"warehouse\".\"intermediate\".\"int_sales_deduped\" as s\nleft join lateral (\n    select f.rate\n    from \"warehouse\".\"staging\".\"stg_fx_rates\" as f\n    where f.base = 'GBP'\n      and f.quote = s.currency\n      and f.rate_date <= s.order_date\n    order by f.rate_date desc\n    limit 1\n) as fx on true",
+      "adapter_response": {
+        "_message": "CREATE VIEW"
+      }
+    },
+    {
+      "unique_id": "model.drct.fct_sales",
+      "status": "success",
+      "failures": null,
+      "message": "SELECT 72751",
+      "execution_time": 0.31833815574645996,
+      "compiled_code": "select\n    order_line_id,\n    order_id,\n    business_date,\n    order_date,\n    customer_id,\n    product_id,\n    currency,\n    line_type,\n    quantity,\n    unit_price,\n    line_amount,\n    revenue_gbp\nfrom \"warehouse\".\"intermediate\".\"int_orders_enriched\"",
+      "adapter_response": {
+        "_message": "SELECT 72751"
+      }
+    },
+    {
+      "unique_id": "exposure.drct.control_tower",
+      "status": "skipped",
+      "failures": null,
+      "message": null,
+      "execution_time": 0,
+      "compiled_code": null,
+      "adapter_response": {
+        "_message": null
+      }
+    },
+    {
+      "unique_id": "test.drct.not_null_fct_sales_revenue_gbp.b1d8462326",
+      "status": "pass",
+      "failures": 0,
+      "message": null,
+      "execution_time": 0.021672487258911133,
+      "compiled_code": "\n    \n    \n\n\n\nselect revenue_gbp\nfrom \"warehouse\".\"marts\".\"fct_sales\"\nwhere revenue_gbp is null\n\n\n",
+      "adapter_response": {
+        "_message": "SELECT 1"
+      }
+    },
+    {
+      "unique_id": "test.drct.not_null_fct_sales_order_line_id.e3f1e10dcc",
+      "status": "pass",
+      "failures": 0,
+      "message": null,
+      "execution_time": 0.02653980255126953,
+      "compiled_code": "\n    \n    \n\n\n\nselect order_line_id\nfrom \"warehouse\".\"marts\".\"fct_sales\"\nwhere order_line_id is null\n\n\n",
+      "adapter_response": {
+        "_message": "SELECT 1"
+      }
+    },
+    {
+      "unique_id": "test.drct.unique_fct_sales_order_line_id.fab85fd0e4",
+      "status": "pass",
+      "failures": 0,
+      "message": null,
+      "execution_time": 0.04228496551513672,
+      "compiled_code": "\n    \n    \n\nselect\n    order_line_id as unique_field,\n    count(*) as n_records\n\nfrom \"warehouse\".\"marts\".\"fct_sales\"\nwhere order_line_id is not null\ngroup by order_line_id\nhaving count(*) > 1\n\n\n",
+      "adapter_response": {
+        "_message": "SELECT 1"
+      }
+    }
+  ],
+  "elapsed_time": 0.7457571029663086
+}

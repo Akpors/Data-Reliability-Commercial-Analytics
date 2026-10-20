@@ -1,0 +1,756 @@
+{
+  "metadata": {
+    "dbt_schema_version": "https://schemas.getdbt.com/dbt/manifest/v12.json",
+    "dbt_version": "1.12.6",
+    "generated_at": "2026-10-20T00:38:55.033475Z",
+    "invocation_id": "30034522-19c6-4e53-a6d8-0e73cb232993",
+    "project_name": "drct"
+  },
+  "nodes": {
+    "model.drct.stg_products": {
+      "unique_id": "model.drct.stg_products",
+      "resource_type": "model",
+      "name": "stg_products",
+      "depends_on": {
+        "nodes": [
+          "source.drct.raw.products"
+        ]
+      }
+    },
+    "model.drct.stg_customers": {
+      "unique_id": "model.drct.stg_customers",
+      "resource_type": "model",
+      "name": "stg_customers",
+      "depends_on": {
+        "nodes": [
+          "source.drct.raw.customers"
+        ]
+      }
+    },
+    "model.drct.stg_payments": {
+      "unique_id": "model.drct.stg_payments",
+      "resource_type": "model",
+      "name": "stg_payments",
+      "depends_on": {
+        "nodes": [
+          "source.drct.raw.payments"
+        ]
+      }
+    },
+    "model.drct.stg_fx_rates": {
+      "unique_id": "model.drct.stg_fx_rates",
+      "resource_type": "model",
+      "name": "stg_fx_rates",
+      "depends_on": {
+        "nodes": [
+          "source.drct.raw.fx_rates"
+        ]
+      }
+    },
+    "model.drct.stg_sales": {
+      "unique_id": "model.drct.stg_sales",
+      "resource_type": "model",
+      "name": "stg_sales",
+      "depends_on": {
+        "nodes": [
+          "source.drct.raw.sales"
+        ]
+      }
+    },
+    "model.drct.dim_product": {
+      "unique_id": "model.drct.dim_product",
+      "resource_type": "model",
+      "name": "dim_product",
+      "depends_on": {
+        "nodes": [
+          "model.drct.stg_products"
+        ]
+      }
+    },
+    "model.drct.fct_payments": {
+      "unique_id": "model.drct.fct_payments",
+      "resource_type": "model",
+      "name": "fct_payments",
+      "depends_on": {
+        "nodes": [
+          "model.drct.int_payments_matched"
+        ]
+      }
+    },
+    "model.drct.fct_sales": {
+      "unique_id": "model.drct.fct_sales",
+      "resource_type": "model",
+      "name": "fct_sales",
+      "depends_on": {
+        "nodes": [
+          "model.drct.int_orders_enriched"
+        ]
+      }
+    },
+    "model.drct.dim_customer": {
+      "unique_id": "model.drct.dim_customer",
+      "resource_type": "model",
+      "name": "dim_customer",
+      "depends_on": {
+        "nodes": [
+          "model.drct.stg_customers"
+        ]
+      }
+    },
+    "model.drct.dim_date": {
+      "unique_id": "model.drct.dim_date",
+      "resource_type": "model",
+      "name": "dim_date",
+      "depends_on": {
+        "nodes": []
+      }
+    },
+    "model.drct.int_sales_deduped": {
+      "unique_id": "model.drct.int_sales_deduped",
+      "resource_type": "model",
+      "name": "int_sales_deduped",
+      "depends_on": {
+        "nodes": [
+          "model.drct.stg_sales"
+        ]
+      }
+    },
+    "model.drct.int_payments_matched": {
+      "unique_id": "model.drct.int_payments_matched",
+      "resource_type": "model",
+      "name": "int_payments_matched",
+      "depends_on": {
+        "nodes": [
+          "model.drct.int_payments_deduped",
+          "model.drct.int_sales_deduped"
+        ]
+      }
+    },
+    "model.drct.int_orders_enriched": {
+      "unique_id": "model.drct.int_orders_enriched",
+      "resource_type": "model",
+      "name": "int_orders_enriched",
+      "depends_on": {
+        "nodes": [
+          "model.drct.int_sales_deduped",
+          "model.drct.stg_fx_rates"
+        ]
+      }
+    },
+    "model.drct.int_payments_deduped": {
+      "unique_id": "model.drct.int_payments_deduped",
+      "resource_type": "model",
+      "name": "int_payments_deduped",
+      "depends_on": {
+        "nodes": [
+          "model.drct.stg_payments"
+        ]
+      }
+    },
+    "test.drct.assert_no_missing_sales_dates": {
+      "unique_id": "test.drct.assert_no_missing_sales_dates",
+      "resource_type": "test",
+      "name": "assert_no_missing_sales_dates",
+      "attached_node": null,
+      "test_metadata": null,
+      "config": {
+        "severity": "warn"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.dim_date",
+          "model.drct.stg_sales"
+        ]
+      }
+    },
+    "test.drct.unique_stg_sales_order_line_id.36c3f2c4cb": {
+      "unique_id": "test.drct.unique_stg_sales_order_line_id.36c3f2c4cb",
+      "resource_type": "test",
+      "name": "unique_stg_sales_order_line_id",
+      "attached_node": "model.drct.stg_sales",
+      "test_metadata": {
+        "name": "unique",
+        "namespace": null
+      },
+      "config": {
+        "severity": "error"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.stg_sales"
+        ]
+      }
+    },
+    "test.drct.not_null_stg_sales_order_date.c25c86fb8d": {
+      "unique_id": "test.drct.not_null_stg_sales_order_date.c25c86fb8d",
+      "resource_type": "test",
+      "name": "not_null_stg_sales_order_date",
+      "attached_node": "model.drct.stg_sales",
+      "test_metadata": {
+        "name": "not_null",
+        "namespace": null
+      },
+      "config": {
+        "severity": "error"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.stg_sales"
+        ]
+      }
+    },
+    "test.drct.not_null_stg_sales_product_id.f0a6c99276": {
+      "unique_id": "test.drct.not_null_stg_sales_product_id.f0a6c99276",
+      "resource_type": "test",
+      "name": "not_null_stg_sales_product_id",
+      "attached_node": "model.drct.stg_sales",
+      "test_metadata": {
+        "name": "not_null",
+        "namespace": null
+      },
+      "config": {
+        "severity": "error"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.stg_sales"
+        ]
+      }
+    },
+    "test.drct.relationships_stg_sales_product_id__product_id__ref_stg_products_.57e6472e6d": {
+      "unique_id": "test.drct.relationships_stg_sales_product_id__product_id__ref_stg_products_.57e6472e6d",
+      "resource_type": "test",
+      "name": "relationships_stg_sales_product_id__product_id__ref_stg_products_",
+      "attached_node": "model.drct.stg_sales",
+      "test_metadata": {
+        "name": "relationships",
+        "namespace": null
+      },
+      "config": {
+        "severity": "error"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.stg_products",
+          "model.drct.stg_sales"
+        ]
+      }
+    },
+    "test.drct.not_null_stg_sales_customer_id.af88ce3793": {
+      "unique_id": "test.drct.not_null_stg_sales_customer_id.af88ce3793",
+      "resource_type": "test",
+      "name": "not_null_stg_sales_customer_id",
+      "attached_node": "model.drct.stg_sales",
+      "test_metadata": {
+        "name": "not_null",
+        "namespace": null
+      },
+      "config": {
+        "severity": "error"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.stg_sales"
+        ]
+      }
+    },
+    "test.drct.relationships_stg_sales_customer_id__customer_id__ref_stg_customers_.f88f1dcfca": {
+      "unique_id": "test.drct.relationships_stg_sales_customer_id__customer_id__ref_stg_customers_.f88f1dcfca",
+      "resource_type": "test",
+      "name": "relationships_stg_sales_customer_id__customer_id__ref_stg_customers_",
+      "attached_node": "model.drct.stg_sales",
+      "test_metadata": {
+        "name": "relationships",
+        "namespace": null
+      },
+      "config": {
+        "severity": "error"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.stg_customers",
+          "model.drct.stg_sales"
+        ]
+      }
+    },
+    "test.drct.dbt_expectations_expect_column_values_to_be_between_stg_sales_line_amount__0__line_type_sale_.fa043ee6e9": {
+      "unique_id": "test.drct.dbt_expectations_expect_column_values_to_be_between_stg_sales_line_amount__0__line_type_sale_.fa043ee6e9",
+      "resource_type": "test",
+      "name": "dbt_expectations_expect_column_values_to_be_between_stg_sales_line_amount__0__line_type_sale_",
+      "attached_node": "model.drct.stg_sales",
+      "test_metadata": {
+        "name": "expect_column_values_to_be_between",
+        "namespace": "dbt_expectations"
+      },
+      "config": {
+        "severity": "warn"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.stg_sales"
+        ]
+      }
+    },
+    "test.drct.unique_stg_payments_payment_id.3744510712": {
+      "unique_id": "test.drct.unique_stg_payments_payment_id.3744510712",
+      "resource_type": "test",
+      "name": "unique_stg_payments_payment_id",
+      "attached_node": "model.drct.stg_payments",
+      "test_metadata": {
+        "name": "unique",
+        "namespace": null
+      },
+      "config": {
+        "severity": "error"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.stg_payments"
+        ]
+      }
+    },
+    "test.drct.not_null_stg_payments_payment_id.c19cc50075": {
+      "unique_id": "test.drct.not_null_stg_payments_payment_id.c19cc50075",
+      "resource_type": "test",
+      "name": "not_null_stg_payments_payment_id",
+      "attached_node": "model.drct.stg_payments",
+      "test_metadata": {
+        "name": "not_null",
+        "namespace": null
+      },
+      "config": {
+        "severity": "error"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.stg_payments"
+        ]
+      }
+    },
+    "test.drct.not_null_stg_payments_order_id.601cf57649": {
+      "unique_id": "test.drct.not_null_stg_payments_order_id.601cf57649",
+      "resource_type": "test",
+      "name": "not_null_stg_payments_order_id",
+      "attached_node": "model.drct.stg_payments",
+      "test_metadata": {
+        "name": "not_null",
+        "namespace": null
+      },
+      "config": {
+        "severity": "error"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.stg_payments"
+        ]
+      }
+    },
+    "test.drct.unique_fct_sales_order_line_id.fab85fd0e4": {
+      "unique_id": "test.drct.unique_fct_sales_order_line_id.fab85fd0e4",
+      "resource_type": "test",
+      "name": "unique_fct_sales_order_line_id",
+      "attached_node": "model.drct.fct_sales",
+      "test_metadata": {
+        "name": "unique",
+        "namespace": null
+      },
+      "config": {
+        "severity": "error"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.fct_sales"
+        ]
+      }
+    },
+    "test.drct.not_null_fct_sales_order_line_id.e3f1e10dcc": {
+      "unique_id": "test.drct.not_null_fct_sales_order_line_id.e3f1e10dcc",
+      "resource_type": "test",
+      "name": "not_null_fct_sales_order_line_id",
+      "attached_node": "model.drct.fct_sales",
+      "test_metadata": {
+        "name": "not_null",
+        "namespace": null
+      },
+      "config": {
+        "severity": "error"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.fct_sales"
+        ]
+      }
+    },
+    "test.drct.not_null_fct_sales_revenue_gbp.b1d8462326": {
+      "unique_id": "test.drct.not_null_fct_sales_revenue_gbp.b1d8462326",
+      "resource_type": "test",
+      "name": "not_null_fct_sales_revenue_gbp",
+      "attached_node": "model.drct.fct_sales",
+      "test_metadata": {
+        "name": "not_null",
+        "namespace": null
+      },
+      "config": {
+        "severity": "error"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.fct_sales"
+        ]
+      }
+    },
+    "test.drct.unique_fct_payments_payment_id.4572b82d46": {
+      "unique_id": "test.drct.unique_fct_payments_payment_id.4572b82d46",
+      "resource_type": "test",
+      "name": "unique_fct_payments_payment_id",
+      "attached_node": "model.drct.fct_payments",
+      "test_metadata": {
+        "name": "unique",
+        "namespace": null
+      },
+      "config": {
+        "severity": "error"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.fct_payments"
+        ]
+      }
+    },
+    "test.drct.not_null_fct_payments_payment_id.f8fe414166": {
+      "unique_id": "test.drct.not_null_fct_payments_payment_id.f8fe414166",
+      "resource_type": "test",
+      "name": "not_null_fct_payments_payment_id",
+      "attached_node": "model.drct.fct_payments",
+      "test_metadata": {
+        "name": "not_null",
+        "namespace": null
+      },
+      "config": {
+        "severity": "error"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.fct_payments"
+        ]
+      }
+    },
+    "test.drct.unique_dim_customer_customer_id.b42affccd1": {
+      "unique_id": "test.drct.unique_dim_customer_customer_id.b42affccd1",
+      "resource_type": "test",
+      "name": "unique_dim_customer_customer_id",
+      "attached_node": "model.drct.dim_customer",
+      "test_metadata": {
+        "name": "unique",
+        "namespace": null
+      },
+      "config": {
+        "severity": "error"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.dim_customer"
+        ]
+      }
+    },
+    "test.drct.unique_dim_product_product_id.46495bf7fe": {
+      "unique_id": "test.drct.unique_dim_product_product_id.46495bf7fe",
+      "resource_type": "test",
+      "name": "unique_dim_product_product_id",
+      "attached_node": "model.drct.dim_product",
+      "test_metadata": {
+        "name": "unique",
+        "namespace": null
+      },
+      "config": {
+        "severity": "error"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.dim_product"
+        ]
+      }
+    },
+    "test.drct.unique_dim_date_date_day.d56fd19199": {
+      "unique_id": "test.drct.unique_dim_date_date_day.d56fd19199",
+      "resource_type": "test",
+      "name": "unique_dim_date_date_day",
+      "attached_node": "model.drct.dim_date",
+      "test_metadata": {
+        "name": "unique",
+        "namespace": null
+      },
+      "config": {
+        "severity": "error"
+      },
+      "depends_on": {
+        "nodes": [
+          "model.drct.dim_date"
+        ]
+      }
+    }
+  },
+  "sources": {
+    "source.drct.raw.sales": {
+      "unique_id": "source.drct.raw.sales",
+      "resource_type": "source",
+      "source_name": "raw",
+      "name": "sales"
+    },
+    "source.drct.raw.payments": {
+      "unique_id": "source.drct.raw.payments",
+      "resource_type": "source",
+      "source_name": "raw",
+      "name": "payments"
+    },
+    "source.drct.raw.customers": {
+      "unique_id": "source.drct.raw.customers",
+      "resource_type": "source",
+      "source_name": "raw",
+      "name": "customers"
+    },
+    "source.drct.raw.products": {
+      "unique_id": "source.drct.raw.products",
+      "resource_type": "source",
+      "source_name": "raw",
+      "name": "products"
+    },
+    "source.drct.raw.fx_rates": {
+      "unique_id": "source.drct.raw.fx_rates",
+      "resource_type": "source",
+      "source_name": "raw",
+      "name": "fx_rates"
+    }
+  },
+  "exposures": {
+    "exposure.drct.control_tower": {
+      "unique_id": "exposure.drct.control_tower",
+      "resource_type": "exposure",
+      "name": "control_tower",
+      "depends_on": {
+        "nodes": [
+          "model.drct.fct_sales",
+          "model.drct.fct_payments",
+          "model.drct.dim_customer",
+          "model.drct.dim_product"
+        ]
+      }
+    }
+  },
+  "parent_map": {
+    "model.drct.stg_products": [
+      "source.drct.raw.products"
+    ],
+    "model.drct.stg_customers": [
+      "source.drct.raw.customers"
+    ],
+    "model.drct.stg_payments": [
+      "source.drct.raw.payments"
+    ],
+    "model.drct.stg_fx_rates": [
+      "source.drct.raw.fx_rates"
+    ],
+    "model.drct.stg_sales": [
+      "source.drct.raw.sales"
+    ],
+    "model.drct.dim_product": [
+      "model.drct.stg_products"
+    ],
+    "model.drct.fct_payments": [
+      "model.drct.int_payments_matched"
+    ],
+    "model.drct.fct_sales": [
+      "model.drct.int_orders_enriched"
+    ],
+    "model.drct.dim_customer": [
+      "model.drct.stg_customers"
+    ],
+    "model.drct.dim_date": [],
+    "model.drct.int_sales_deduped": [
+      "model.drct.stg_sales"
+    ],
+    "model.drct.int_payments_matched": [
+      "model.drct.int_payments_deduped",
+      "model.drct.int_sales_deduped"
+    ],
+    "model.drct.int_orders_enriched": [
+      "model.drct.int_sales_deduped",
+      "model.drct.stg_fx_rates"
+    ],
+    "model.drct.int_payments_deduped": [
+      "model.drct.stg_payments"
+    ],
+    "test.drct.assert_no_missing_sales_dates": [
+      "model.drct.dim_date",
+      "model.drct.stg_sales"
+    ],
+    "test.drct.unique_stg_sales_order_line_id.36c3f2c4cb": [
+      "model.drct.stg_sales"
+    ],
+    "test.drct.not_null_stg_sales_order_date.c25c86fb8d": [
+      "model.drct.stg_sales"
+    ],
+    "test.drct.not_null_stg_sales_product_id.f0a6c99276": [
+      "model.drct.stg_sales"
+    ],
+    "test.drct.relationships_stg_sales_product_id__product_id__ref_stg_products_.57e6472e6d": [
+      "model.drct.stg_products",
+      "model.drct.stg_sales"
+    ],
+    "test.drct.not_null_stg_sales_customer_id.af88ce3793": [
+      "model.drct.stg_sales"
+    ],
+    "test.drct.relationships_stg_sales_customer_id__customer_id__ref_stg_customers_.f88f1dcfca": [
+      "model.drct.stg_customers",
+      "model.drct.stg_sales"
+    ],
+    "test.drct.dbt_expectations_expect_column_values_to_be_between_stg_sales_line_amount__0__line_type_sale_.fa043ee6e9": [
+      "model.drct.stg_sales"
+    ],
+    "test.drct.unique_stg_payments_payment_id.3744510712": [
+      "model.drct.stg_payments"
+    ],
+    "test.drct.not_null_stg_payments_payment_id.c19cc50075": [
+      "model.drct.stg_payments"
+    ],
+    "test.drct.not_null_stg_payments_order_id.601cf57649": [
+      "model.drct.stg_payments"
+    ],
+    "test.drct.unique_fct_sales_order_line_id.fab85fd0e4": [
+      "model.drct.fct_sales"
+    ],
+    "test.drct.not_null_fct_sales_order_line_id.e3f1e10dcc": [
+      "model.drct.fct_sales"
+    ],
+    "test.drct.not_null_fct_sales_revenue_gbp.b1d8462326": [
+      "model.drct.fct_sales"
+    ],
+    "test.drct.unique_fct_payments_payment_id.4572b82d46": [
+      "model.drct.fct_payments"
+    ],
+    "test.drct.not_null_fct_payments_payment_id.f8fe414166": [
+      "model.drct.fct_payments"
+    ],
+    "test.drct.unique_dim_customer_customer_id.b42affccd1": [
+      "model.drct.dim_customer"
+    ],
+    "test.drct.unique_dim_product_product_id.46495bf7fe": [
+      "model.drct.dim_product"
+    ],
+    "test.drct.unique_dim_date_date_day.d56fd19199": [
+      "model.drct.dim_date"
+    ],
+    "source.drct.raw.sales": [],
+    "source.drct.raw.payments": [],
+    "source.drct.raw.customers": [],
+    "source.drct.raw.products": [],
+    "source.drct.raw.fx_rates": [],
+    "exposure.drct.control_tower": [
+      "model.drct.dim_customer",
+      "model.drct.dim_product",
+      "model.drct.fct_payments",
+      "model.drct.fct_sales"
+    ]
+  },
+  "child_map": {
+    "model.drct.stg_products": [
+      "model.drct.dim_product",
+      "test.drct.relationships_stg_sales_product_id__product_id__ref_stg_products_.57e6472e6d"
+    ],
+    "model.drct.stg_customers": [
+      "model.drct.dim_customer",
+      "test.drct.relationships_stg_sales_customer_id__customer_id__ref_stg_customers_.f88f1dcfca"
+    ],
+    "model.drct.stg_payments": [
+      "model.drct.int_payments_deduped",
+      "test.drct.not_null_stg_payments_order_id.601cf57649",
+      "test.drct.not_null_stg_payments_payment_id.c19cc50075",
+      "test.drct.unique_stg_payments_payment_id.3744510712"
+    ],
+    "model.drct.stg_fx_rates": [
+      "model.drct.int_orders_enriched"
+    ],
+    "model.drct.stg_sales": [
+      "model.drct.int_sales_deduped",
+      "test.drct.assert_no_missing_sales_dates",
+      "test.drct.dbt_expectations_expect_column_values_to_be_between_stg_sales_line_amount__0__line_type_sale_.fa043ee6e9",
+      "test.drct.not_null_stg_sales_customer_id.af88ce3793",
+      "test.drct.not_null_stg_sales_order_date.c25c86fb8d",
+      "test.drct.not_null_stg_sales_product_id.f0a6c99276",
+      "test.drct.relationships_stg_sales_customer_id__customer_id__ref_stg_customers_.f88f1dcfca",
+      "test.drct.relationships_stg_sales_product_id__product_id__ref_stg_products_.57e6472e6d",
+      "test.drct.unique_stg_sales_order_line_id.36c3f2c4cb"
+    ],
+    "model.drct.dim_product": [
+      "exposure.drct.control_tower",
+      "test.drct.unique_dim_product_product_id.46495bf7fe"
+    ],
+    "model.drct.fct_payments": [
+      "exposure.drct.control_tower",
+      "test.drct.not_null_fct_payments_payment_id.f8fe414166",
+      "test.drct.unique_fct_payments_payment_id.4572b82d46"
+    ],
+    "model.drct.fct_sales": [
+      "exposure.drct.control_tower",
+      "test.drct.not_null_fct_sales_order_line_id.e3f1e10dcc",
+      "test.drct.not_null_fct_sales_revenue_gbp.b1d8462326",
+      "test.drct.unique_fct_sales_order_line_id.fab85fd0e4"
+    ],
+    "model.drct.dim_customer": [
+      "exposure.drct.control_tower",
+      "test.drct.unique_dim_customer_customer_id.b42affccd1"
+    ],
+    "model.drct.dim_date": [
+      "test.drct.assert_no_missing_sales_dates",
+      "test.drct.unique_dim_date_date_day.d56fd19199"
+    ],
+    "model.drct.int_sales_deduped": [
+      "model.drct.int_orders_enriched",
+      "model.drct.int_payments_matched"
+    ],
+    "model.drct.int_payments_matched": [
+      "model.drct.fct_payments"
+    ],
+    "model.drct.int_orders_enriched": [
+      "model.drct.fct_sales"
+    ],
+    "model.drct.int_payments_deduped": [
+      "model.drct.int_payments_matched"
+    ],
+    "test.drct.assert_no_missing_sales_dates": [],
+    "test.drct.unique_stg_sales_order_line_id.36c3f2c4cb": [],
+    "test.drct.not_null_stg_sales_order_date.c25c86fb8d": [],
+    "test.drct.not_null_stg_sales_product_id.f0a6c99276": [],
+    "test.drct.relationships_stg_sales_product_id__product_id__ref_stg_products_.57e6472e6d": [],
+    "test.drct.not_null_stg_sales_customer_id.af88ce3793": [],
+    "test.drct.relationships_stg_sales_customer_id__customer_id__ref_stg_customers_.f88f1dcfca": [],
+    "test.drct.dbt_expectations_expect_column_values_to_be_between_stg_sales_line_amount__0__line_type_sale_.fa043ee6e9": [],
+    "test.drct.unique_stg_payments_payment_id.3744510712": [],
+    "test.drct.not_null_stg_payments_payment_id.c19cc50075": [],
+    "test.drct.not_null_stg_payments_order_id.601cf57649": [],
+    "test.drct.unique_fct_sales_order_line_id.fab85fd0e4": [],
+    "test.drct.not_null_fct_sales_order_line_id.e3f1e10dcc": [],
+    "test.drct.not_null_fct_sales_revenue_gbp.b1d8462326": [],
+    "test.drct.unique_fct_payments_payment_id.4572b82d46": [],
+    "test.drct.not_null_fct_payments_payment_id.f8fe414166": [],
+    "test.drct.unique_dim_customer_customer_id.b42affccd1": [],
+    "test.drct.unique_dim_product_product_id.46495bf7fe": [],
+    "test.drct.unique_dim_date_date_day.d56fd19199": [],
+    "source.drct.raw.sales": [
+      "model.drct.stg_sales"
+    ],
+    "source.drct.raw.payments": [
+      "model.drct.stg_payments"
+    ],
+    "source.drct.raw.customers": [
+      "model.drct.stg_customers"
+    ],
+    "source.drct.raw.products": [
+      "model.drct.stg_products"
+    ],
+    "source.drct.raw.fx_rates": [
+      "model.drct.stg_fx_rates"
+    ],
+    "exposure.drct.control_tower": []
+  }
+}

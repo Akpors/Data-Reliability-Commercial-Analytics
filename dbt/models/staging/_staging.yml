@@ -1,0 +1,63 @@
+version: 2
+
+models:
+  - name: stg_sales
+    description: Sales order lines as arrived, typed. Not deduplicated.
+    columns:
+      - name: order_line_id
+        data_tests:
+          - unique:
+              config: {severity: error}
+      - name: order_date
+        data_tests:
+          - not_null:
+              config: {severity: error}
+      - name: product_id
+        data_tests:
+          - not_null:
+              config: {severity: error}
+          - relationships:
+              arguments:
+                to: ref('stg_products')
+                field: product_id
+              config: {severity: error}
+      - name: customer_id
+        data_tests:
+          - not_null:
+              config: {severity: error}
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+              config: {severity: error}
+      - name: line_amount
+        description: quantity * unit_price, negative for refund lines.
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+                row_condition: "line_type = 'sale'"
+              config: {severity: warn}
+
+  - name: stg_payments
+    description: Payment attempts as arrived, typed. Not deduplicated.
+    columns:
+      - name: payment_id
+        data_tests:
+          - unique:
+              config: {severity: error}
+          - not_null:
+              config: {severity: error}
+      - name: order_id
+        data_tests:
+          - not_null:
+              config: {severity: error}
+
+  - name: stg_customers
+    description: Latest customer snapshot (business_date = max(business_date)).
+
+  - name: stg_products
+    description: Latest product snapshot (business_date = max(business_date)).
+
+  - name: stg_fx_rates
+    description: GBP-base FX rates (units of quote currency per 1 GBP).

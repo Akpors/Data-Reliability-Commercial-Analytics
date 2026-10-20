@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Throwaway CI values only; nothing here is a real secret. The postgres service below is created
+# with the same credentials. PYTHONPATH makes the `drct` package importable without installing it.
+env:
+  PYTHONPATH: src
+  WAREHOUSE_HOST: localhost
+  WAREHOUSE_PORT: "5432"
+  WAREHOUSE_USER: drct
+  WAREHOUSE_PASSWORD: drct_ci_password
+  WAREHOUSE_DB: warehouse
+  WAREHOUSE_DSN: postgresql://drct:drct_ci_password@localhost:5432/warehouse
+  TEST_ADMIN_DSN: postgresql://drct:drct_ci_password@localhost:5432/postgres
+  LANDING_DIR: /tmp/drct-landing
+  FX_SOURCE: stub
+  FX_API_URL: https://api.frankfurter.dev/v1
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements/app.txt
+      # Only ruff, at the version pinned in requirements/app.txt.
+      - run: pip install "$(grep '^ruff==' requirements/app.txt)"
+      # Python source only: ruff would also try to format the code blocks inside docs/*.md.
+      - run: ruff check src tests airflow
+      - run: ruff format --check src tests airflow
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: drct
+          POSTGRES_PASSWORD: drct_ci_password
+          POSTGRES_DB: warehouse
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U drct -d warehouse"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements/app.txt
+      - run: pip install -r requirements/app.txt
+      # tests/dags needs Airflow and runs in the Airflow container (make test-dags), not here.
+      - run: pytest tests/unit tests/integration -q
+
+  dbt-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: drct
+          POSTGRES_PASSWORD: drct_ci_password
+          POSTGRES_DB: warehouse
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U drct -d warehouse"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements/app.txt
+            requirements/dbt.txt
+      - run: pip install -r requirements/app.txt
+      # dbt in its own venv, as in the app image, so its pins cannot conflict with the app's.
+      - run: |
+          python -m venv "$RUNNER_TEMP/dbt-venv"
+          "$RUNNER_TEMP/dbt-venv/bin/pip" install -r requirements/dbt.txt
+      - run: scripts/ci_smoke.sh
+        env:
+          DBT_BIN: ${{ runner.temp }}/dbt-venv/bin/dbt

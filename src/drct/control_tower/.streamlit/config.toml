@@ -1,0 +1,20 @@
+# Script-level Streamlit config (read from the app's own directory; only ./src is mounted into
+# the control-tower container). Colours mirror the tokens in theme.py.
+[theme]
+base = "dark"
+primaryColor = "#3987e5"
+backgroundColor = "#0b0f14"
+secondaryBackgroundColor = "#18202a"
+textColor = "#e6ebf2"
+borderColor = "#243041"
+font = "'IBM Plex Sans':https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+codeFont = "'IBM Plex Mono':https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap"
+codeBackgroundColor = "#18202a"
+baseRadius = "small"
+
+[client]
+toolbarMode = "viewer"
+showSidebarNavigation = false
+
+[browser]
+gatherUsageStats = false

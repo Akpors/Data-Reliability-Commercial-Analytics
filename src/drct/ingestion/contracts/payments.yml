@@ -1,0 +1,11 @@
+source: payments
+version: 1
+file_format: parquet
+columns:
+  - {name: payment_id, dtype: string, nullable: false}
+  - {name: order_id, dtype: string, nullable: false}
+  - {name: payment_ts, dtype: timestamp}
+  - {name: amount, dtype: decimal, nullable: false}
+  - {name: currency, dtype: string}
+  - {name: method, dtype: string}
+  - {name: status, dtype: string}

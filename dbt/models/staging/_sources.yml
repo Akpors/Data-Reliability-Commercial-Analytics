@@ -1,0 +1,23 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Raw landing tables loaded by the ingestion DAGs. Source columns are text; typing happens in staging.
+    schema: raw
+    # Freshness is measured on simulated load time against control.sim_now() (see macros/collect_freshness.sql).
+    loaded_at_field: _sim_loaded_at
+    config:
+      freshness:
+        warn_after: {count: 20, period: hour}
+        error_after: {count: 44, period: hour}
+    tables:
+      - name: sales
+        description: Daily sales order-line files (one file per business date).
+      - name: payments
+        description: Daily payment attempt files (one file per business date).
+      - name: customers
+        description: Full daily customer snapshots, keyed by business_date.
+      - name: products
+        description: Full daily product snapshots, keyed by business_date.
+      - name: fx_rates
+        description: Frankfurter (ECB) GBP rates. ECB business days only, so weekends have no rows.
